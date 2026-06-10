@@ -8,6 +8,20 @@ import cv2
 import json
 import numpy as np
 
+import subprocess
+
+
+def set_camera_controls():
+    commands = [
+        ["v4l2-ctl", "-d", "/dev/video0", "-c", "power_line_frequency=1"],   # HK 50Hz
+        ["v4l2-ctl", "-d", "/dev/video0", "-c", "auto_exposure=1"],           # manual exposure
+        ["v4l2-ctl", "-d", "/dev/video0", "-c", "exposure_time_absolute=200"],
+        ["v4l2-ctl", "-d", "/dev/video0", "-c", "gain=0"],
+        ["v4l2-ctl", "-d", "/dev/video0", "-c", "brightness=50"],
+    ]
+
+    for cmd in commands:
+        subprocess.run(cmd, check=False)
 
 IMAGE_SAVE_PATH = "input/test.png"
 JSON_SAVE_PATH = "output/out.json"
@@ -121,7 +135,7 @@ def manual_select_corners(image):
             print(f"Point {len(points)}: ({original_x:.1f}, {original_y:.1f})")
 
     win_name = "Select 4 corners"
-    cv2.namedWindow(win_name, cv2.WINDOW_NORMAL)
+    cv2.namedWindow(win_name, cv2.WINDOW_NORMAL | cv2.WINDOW_GUI_NORMAL)
     cv2.setMouseCallback(win_name, mouse_callback)
 
     while True:
@@ -182,8 +196,7 @@ def main():
     M, bev_w, bev_h = compute_bev_transform(corners_xy)
     save_transform_json(corners_xy, M, bev_w, bev_h)
 
-    cv2.namedWindow("BEV", cv2.WINDOW_NORMAL)
-
+    cv2.namedWindow("BEV", cv2.WINDOW_NORMAL | cv2.WINDOW_GUI_NORMAL)
     while True:
         ret, frame = cap.read()
         if not ret:
