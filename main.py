@@ -235,7 +235,7 @@ def warp_to_bev(image: np.ndarray, corners: np.ndarray):
 
     M = cv2.getPerspectiveTransform(corners, dst)
     bev_image = cv2.warpPerspective(image, M, (target_width, target_height))
-
+    bev_image = cv2.rotate(bev_image, cv2.ROTATE_180)
     return bev_image, M, target_width, target_height
 
 
@@ -335,10 +335,6 @@ def save_result_json(
 
     return data
 
-
-# ============================================================
-# 主函数
-# ============================================================
 
 def main():
     image = cv2.imread(IMAGE_PATH)
