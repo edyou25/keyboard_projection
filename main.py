@@ -17,15 +17,11 @@ Run:
 import json
 from pathlib import Path
 import os
-
 import cv2
 import numpy as np
 from ultralytics import YOLO, SAM
 
 
-# ============================================================
-# 配置区：只改这里
-# ============================================================
 
 # 输入图像
 IMAGE_PATH = "input/test.png"
@@ -336,20 +332,34 @@ def save_result_json(
     return data
 
 
+import time
+
+
 def main():
+    total_t0 = time.perf_counter()
+
+    t0 = time.perf_counter()
     image = cv2.imread(IMAGE_PATH)
     if image is None:
         raise FileNotFoundError(f"Cannot read image: {IMAGE_PATH}")
+    print(f"[0/5] Read image done, time: {time.perf_counter() - t0:.3f}s")
 
+    t0 = time.perf_counter()
     print("[1/5] Detecting keyboard bbox...")
     bbox, score = detect_keyboard_bbox(IMAGE_PATH)
+    print(f"[1/5] Detecting keyboard bbox done, time: {time.perf_counter() - t0:.3f}s")
 
+    t0 = time.perf_counter()
     print("[2/5] Segmenting keyboard mask...")
     mask = segment_keyboard_mask(IMAGE_PATH, bbox)
+    print(f"[2/5] Segmenting keyboard mask done, time: {time.perf_counter() - t0:.3f}s")
 
+    t0 = time.perf_counter()
     print("[3/5] Estimating 4 keyboard corners...")
     corners, mask_binary = mask_to_corners(mask, image.shape)
+    print(f"[3/5] Estimating 4 keyboard corners done, time: {time.perf_counter() - t0:.3f}s")
 
+    t0 = time.perf_counter()
     print("[4/5] Saving visualization...")
     draw_visualization(
         image=image,
@@ -359,10 +369,15 @@ def main():
         det_score=score,
         out_path=VIS_OUT_PATH,
     )
+    print(f"[4/5] Saving visualization done, time: {time.perf_counter() - t0:.3f}s")
 
+    t0 = time.perf_counter()
     print("[5/5] Generating BEV image...")
     bev_image, M, bev_w, bev_h = warp_to_bev(image, corners)
     cv2.imwrite(BEV_OUT_PATH, bev_image)
+    print(f"[5/5] Generating BEV image done, time: {time.perf_counter() - t0:.3f}s")
+
+    print(f"[Total] Pipeline time: {time.perf_counter() - total_t0:.3f}s")
 
     data = save_result_json(
         image_path=IMAGE_PATH,
