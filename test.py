@@ -167,10 +167,10 @@ def main():
         cap.release()
         return
 
-    os.makedirs(os.path.dirname(IMAGE_SAVE_PATH), exist_ok=True)
-    cv2.imwrite(IMAGE_SAVE_PATH, frame)
-    print(f"Saved image to: {IMAGE_SAVE_PATH}")
-    print("Frame shape:", frame.shape)
+    # os.makedirs(os.path.dirname(IMAGE_SAVE_PATH), exist_ok=True)
+    # cv2.imwrite(IMAGE_SAVE_PATH, frame)
+    # print(f"Saved image to: {IMAGE_SAVE_PATH}")
+    # print("Frame shape:", frame.shape)
 
     corners_xy = manual_select_corners(frame)
     if corners_xy is None:
